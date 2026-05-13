@@ -1,0 +1,96 @@
+---
+description: Generate comprehensive test cases from a requirement or user story. USE when user provides a requirement, feature description, user story, or acceptance criteria that needs test cases generated. Keywords that trigger this skill: "generate test cases", "write test cases", "test this requirement", "create test scenarios".
+allowed-tools: Read, Write, WebSearch
+---
+
+# AI Test Case Generator
+
+## When you receive a requirement or user story:
+1. Understand the feature from a user's perspective
+2. Identify all actors, actions, and expected results
+3. Generate test cases grouped by category
+4. Number each test case clearly
+5. Keep language simple — no code, just steps
+
+---
+
+## Output format
+
+### Requirement
+Restate the requirement in one sentence for clarity.
+
+### Test Cases
+
+#### ✅ Positive Cases (Happy Path)
+Test cases where everything works as expected.
+- Valid inputs, normal user behavior
+- Most common use cases
+
+#### ❌ Negative Cases
+Test cases where user does something wrong.
+- Invalid inputs
+- Missing required fields
+- Wrong format (e.g. email without @)
+
+#### ⚠️ Edge Cases
+Boundary and unusual but valid situations.
+- Empty values, very long text, special characters
+- Min/max values
+- Slow network, timeout
+
+#### 🔒 Security Cases
+Test cases to catch security vulnerabilities.
+- SQL injection in input fields
+- Brute force attempts
+- Access without authentication
+- Expired tokens / sessions
+
+#### 🎨 UX Cases
+Test cases for user experience quality.
+- Error messages are clear and helpful
+- Loading states are shown
+- Button states (disabled, loading, success)
+- Responsive on mobile vs desktop
+
+---
+
+## Example
+
+**Requirement:** User can reset password via email OTP
+
+**TC-001 [Positive]** — Reset password with valid email and correct OTP
+- Steps: Enter registered email → Click Send OTP → Receive OTP in email → Enter OTP → Enter new password → Confirm
+- Expected: Password changed, user redirected to login
+
+**TC-002 [Negative]** — Enter unregistered email
+- Steps: Enter email not in system → Click Send OTP
+- Expected: Error message "Email not found"
+
+**TC-003 [Negative]** — Enter wrong OTP
+- Steps: Enter valid email → Enter incorrect OTP
+- Expected: Error message "Invalid OTP"
+
+**TC-004 [Edge]** — OTP expires after time limit
+- Steps: Request OTP → Wait until expired → Enter OTP
+- Expected: Error message "OTP expired. Please request a new one."
+
+**TC-005 [Edge]** — Use OTP twice
+- Steps: Request OTP → Use it successfully → Try to use same OTP again
+- Expected: Second use is rejected
+
+**TC-006 [Security]** — Brute force OTP
+- Steps: Enter random OTPs repeatedly
+- Expected: Account locked or rate limiting triggered after N attempts
+
+**TC-007 [UX]** — Send OTP button shows countdown timer
+- Steps: Click Send OTP
+- Expected: Button shows "Resend in 60s" and is disabled until timer ends
+
+---
+
+## Rules
+- Always cover all 5 categories: Positive, Negative, Edge, Security, UX
+- Number test cases as TC-001, TC-002...
+- Each test case must have: Steps + Preconditions + Expected Result
+- Use plain language — no technical jargon unless necessary
+- If the requirement is vague, ask 1-2 clarifying questions before generating

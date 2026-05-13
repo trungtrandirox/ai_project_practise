@@ -1,5 +1,5 @@
-import Anthropic = require("@anthropic-ai/sdk");
-import { playwrightPrompt } = require("../prompts/playwright.prompt");
+import Anthropic from "@anthropic-ai/sdk";
+import { playwrightPrompt } from "../prompts/playwright.prompt";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
