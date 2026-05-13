@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+
+# environment variables
+.env
+
+# build output
+dist/
+build/
+
+# logs
+logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+
+# coverage
+coverage/
+
+# playwright
+playwright-report/
+test-results/
+
+# cache
+.cache/
