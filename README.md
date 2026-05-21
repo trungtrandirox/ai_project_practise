@@ -184,8 +184,8 @@ Each section below tracks: what the course teaches → what was practiced in thi
 | Section | Topic | Practice Plan | Status |
 |---------|-------|--------------|--------|
 | 1 | Getting started with Claude | Basic API call — already in `playwright.agent.ts` | ✅ Done |
-| 2 | Prompt engineering & evaluation | Improve `playwright.prompt.ts`, test multiple prompt versions | ⬜ Todo |
-| 3 | Tool use with Claude | Add tools: read test file input, write `.spec.ts` output | ⬜ Todo |
+| 2 | Prompt engineering & evaluation | Improve `playwright.prompt.ts`, test multiple prompt versions | ✅ Done |
+| 3 | Tool use with Claude | Add tools: read test file input, write `.spec.ts` output | 🔄 In Progress |
 | 4 | Retrieval augmented generation (RAG) | Feed project docs to Claude for context-aware test generation | ⬜ Todo |
 | 5 | Model Context Protocol (MCP) | Connect to Jira / TestRail to pull test cases automatically | ⬜ Todo |
 | 6 | Claude Code & Computer Use | Use Claude Code for dev workflow, automate UI interactions | ⬜ Todo |

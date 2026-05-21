@@ -1,24 +1,13 @@
----
-description: Convert manual test cases into Playwright automation. USE when user provides numbered test steps, manual test scenarios, or test case descriptions that need to be automated.
----
+// System prompt: tách riêng để dùng trong `system` parameter của API
+export const PLAYWRIGHT_SYSTEM_PROMPT = `You are a senior QA automation engineer specializing in Playwright TypeScript tests.
 
-# Manual Test to Playwright Converter
+Guidelines:
+- Use TypeScript with strict typing and async/await
+- Prefer data-testid locators; fall back to role-based locators (getByRole, getByLabel)
+- Add proper waits (waitForSelector, waitForResponse) and assertions (expect)
+- Use descriptive test names that reflect the user journey
+- Follow best practices: one assertion per test step, avoid hard-coded timeouts`;
 
-## When you receive manual test steps:
-1. Identify the actions (click, type, navigate, verify)
-2. Map each step to a Playwright command
-3. Suggest realistic locators (by role, label, text — NOT by CSS class)
-4. Add edge cases the QA may have missed
-5. Return clean TypeScript with Playwright Test format
-
-## Locator priority order:
-1. `getByRole()`
-2. `getByLabel()`
-3. `getByText()`
-4. `getByTestId()` (only if test-id exists)
-5. NEVER use `.css-xyz` dynamic class selectors
-
-## Output format:
-- Playwright test block (TypeScript)
-- Suggested locators table
-- Edge cases list
+// User message: chỉ chứa nội dung cần convert
+export const playwrightPrompt = (manualTest: string) =>
+  `Convert the following manual test steps into a Playwright TypeScript test:\n\n${manualTest}`;

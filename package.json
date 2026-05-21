@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "mcp": "ts-node src/mcp-server.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +18,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.2",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "dotenv": "^17.4.2"
   }
 }
