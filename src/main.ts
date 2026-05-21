@@ -1,21 +1,28 @@
 import "dotenv/config";
-import { generatePlaywrightTest } from "./agents/playwright.agent";
+import { createMcpClient, listTools, generateTestViaMcp } from "./services/mcp-client";
 
-async function run() {
-  const manualTest = `
-1. Open homepage
-2. Click login
-3. Enter email
-4. Enter password
-5. Click submit
-6. Verify dashboard
+const manualTest = `
+1. Go to https://example.com/login
+2. Enter username "admin@test.com" in the email field
+3. Enter password "Password123" in the password field
+4. Click the Login button
+5. Verify the dashboard page is displayed with welcome message
 `;
 
-  const result = await generatePlaywrightTest(
-    manualTest
-  );
+async function run() {
+  // Tạo MCP client và kết nối tới server
+  const client = await createMcpClient();
 
-  console.log(result);
+  // List tools — thấy được những gì server expose
+  const tools = await listTools(client);
+  console.log("Available tools:", tools.map((t) => t.name));
+
+  // Gọi tool qua MCP protocol (client → server → Claude API → response)
+  console.log("\nGenerating Playwright test...\n");
+  const output = await generateTestViaMcp(client, manualTest);
+  console.log(output);
+
+  await client.close();
 }
 
 run();
