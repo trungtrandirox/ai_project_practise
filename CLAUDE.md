@@ -46,6 +46,40 @@ The primary user is a **QA Manual engineer** — not a developer.
 
 ---
 
+## Architecture
+
+- **MCP Server** (`src/mcp-server.ts`): Exposes tools/resources/prompts via Model Context Protocol
+- **MCP Client** (`src/services/mcp-client.ts`): Connects to server and calls tools programmatically
+- **Agent** (`src/agents/playwright.agent.ts`): Calls Claude API with structured output (tool calling)
+- **Prompts** (`src/prompts/playwright.prompt.ts`): System prompt + user message templates
+
+## Key Commands
+
+```bash
+# Run MCP server
+npm run mcp
+
+# Run MCP Inspector (test tools in browser UI)
+npx @modelcontextprotocol/inspector npx ts-node src/mcp-server.ts
+
+# Run client (requires ANTHROPIC_API_KEY in .env)
+npx ts-node src/main.ts
+
+# Type check
+npx tsc --noEmit
+```
+
+## Environment Setup
+
+Create `.env` in project root:
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+## MCP Tools
+- `say_hello` — hello world, no API key needed
+- `generate_playwright_test` — converts manual steps → Playwright TypeScript test
+
 ## Skills Available in This Project
 
 | Skill | When it activates |
