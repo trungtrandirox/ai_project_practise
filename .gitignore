@@ -21,6 +21,9 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Claude Code personal instructions (not shared)
+CLAUDE.local.md
+
 # TypeScript
 *.tsbuildinfo
 
