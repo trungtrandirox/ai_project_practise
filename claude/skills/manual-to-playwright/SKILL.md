@@ -5,6 +5,23 @@ allowed-tools: Read, Write, Grep
 
 # Manual Test to Playwright Converter
 
+## Process — Analyze before writing any code
+Before generating Playwright code:
+1. Read all manual steps completely to understand the full flow
+2. Detect test type: Web UI / API / Mobile
+3. Identify every action (navigate, click, fill, verify) and map to Playwright commands
+4. List elements that need locators — note which ones have clear hints and which are ambiguous
+5. Check for missing info: preconditions, expected results, environment URL
+Then write the code covering the full flow.
+
+## Performance — How to behave
+- If a locator cannot be determined from the steps (no visible text, no role, no label mentioned), ask: "What is the visible text or role of this element?" — do NOT guess a CSS class
+- If the base URL is not provided, use a placeholder `/` and add a `// TODO: set base URL` comment
+- If steps are ambiguous or skip logical actions (e.g. "verify the page"), ask ONE clarifying question before proceeding
+- Flag assumptions with inline comments: `// Assumed: button text is "Submit"`
+
+---
+
 ## Detect test type from input
 - **Web UI** — steps mention clicking, typing, navigating pages
 - **API** — steps mention HTTP methods (GET/POST), endpoints, request/response

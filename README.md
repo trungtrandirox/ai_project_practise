@@ -206,6 +206,20 @@ Each section below tracks: what the course teaches → what was practiced in thi
 
 ---
 
+## AI Diligence Statement
+
+In building this project, I collaborated with **Claude (Anthropic)** to assist with the following tasks: generating test cases from requirements, converting manual test steps into Playwright scripts, analyzing bugs, writing bug reports, and improving skill prompts.
+
+I affirm that:
+- All AI-generated test cases and scripts were reviewed by a QA engineer before use
+- Playwright selectors were verified by running tests or using Playwright codegen
+- Skill files and prompts reflect real QA domain knowledge and team standards
+- I take full responsibility for the accuracy and quality of all final outputs
+
+AI was used as a **collaborative tool** to enhance — not replace — the judgment of the QA engineer.
+
+---
+
 ## Author
 
 Built by a QA Manual engineer learning AI-assisted automation.
