@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const input = require('fs').readFileSync('/dev/stdin','utf8'); const data = JSON.parse(input); const file = data.tool_input?.path || ''; const allowed = ['tests/', 'claude/', '.claude/', 'AI-POLICY.md', 'README.md', 'CLAUDE.md']; const ok = allowed.some(p => file.includes(p)); if (!ok && file) { process.stderr.write('BLOCKED: Claude is not allowed to edit source files. Only tests/, claude/, and .claude/ are allowed.'); process.exit(2); }\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo Task completed by Claude Code"
+          }
+        ]
+      }
+    ]
+  }
+}

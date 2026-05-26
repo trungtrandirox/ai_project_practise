@@ -2,10 +2,12 @@ Generate comprehensive test cases for the following requirement or user story: $
 
 ## Process — Analyze before generating
 Before writing any test case:
-1. Identify the main user goal in this requirement
-2. List all possible user actions and system states
-3. Identify boundary conditions and edge cases
-4. Note any ambiguous or missing information
+1. Identify input type: Jira ticket / requirement text / existing manual test case — adjust analysis accordingly
+2. Identify the main user goal in this requirement
+3. List all possible user actions and system states
+4. Identify boundary conditions and edge cases
+5. For each scenario, suggest smoke or regression based on criticality — final decision is made by the human
+6. Note any ambiguous or missing information
 
 Then generate test cases covering all identified scenarios.
 
