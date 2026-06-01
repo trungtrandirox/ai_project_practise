@@ -118,3 +118,14 @@ All TCs above, including Smoke.
 - Smoke is only for Positive cases of core features — maximum 20% of total TCs
 - Use plain language — no technical jargon unless necessary
 - If the requirement is vague, ask 1-2 clarifying questions before generating
+
+---
+
+## Discernment Checklist — Before returning output, verify:
+- [ ] All 5 categories covered: Positive, Negative, Edge, Security, UX
+- [ ] Every TC has: ID (TC-001 format) + Steps + Expected Result
+- [ ] Every TC is labeled 🚀 Smoke or 🔁 Regression — no unlabeled TCs
+- [ ] Smoke TCs are only Positive core cases and ≤ 20% of total
+- [ ] Security cases include at least: injection, unauthorized access, brute force
+- [ ] Language is plain — no jargon a manual tester wouldn't understand
+- [ ] Smoke Test Suite and Regression Test Suite summaries are included

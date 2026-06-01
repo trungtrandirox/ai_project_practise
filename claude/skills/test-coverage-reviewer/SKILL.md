@@ -55,6 +55,17 @@ Format: `[Category] Description of missing test case`
 
 ---
 
+## Discernment Checklist — Before returning output, verify:
+- [ ] All 8 coverage categories are assessed (not skipped even if 0%)
+- [ ] Coverage score is given per category with a status indicator
+- [ ] Missing test cases are prioritized — most critical gaps listed first
+- [ ] Missing cases are formatted as `[Category] Description` consistently
+- [ ] Recommendations are actionable (specific, not generic like "add more tests")
+- [ ] Positive/Happy path coverage is evaluated first as a baseline
+- [ ] Security and Accessibility categories are never marked N/A without justification
+
+---
+
 ## Example
 
 **Input:**

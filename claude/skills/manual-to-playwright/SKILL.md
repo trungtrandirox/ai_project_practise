@@ -132,3 +132,14 @@ test('mobile test name', async ({ page }) => {
 - Group related tests in `test.describe()` blocks if there are 3+ tests
 - Never hardcode URLs — use relative paths like `/login`
 - If manual steps are ambiguous, note the assumption made
+
+---
+
+## Discernment Checklist — Before returning output, verify:
+- [ ] Locator follows priority order: `getByRole` → `getByLabel` → `getByText` → `getByTestId` (no CSS class selectors)
+- [ ] Every manual step is covered — no actions skipped or merged silently
+- [ ] All assumptions are flagged with `// Assumed:` inline comments
+- [ ] Code is TypeScript — no `var`, no `.js` imports, no JavaScript-only syntax
+- [ ] Base URL is not hardcoded — relative path or `// TODO: set base URL` placeholder used
+- [ ] Locator suggestions table is included with reasoning
+- [ ] At least 3 edge cases are listed that the QA may have missed

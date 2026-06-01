@@ -117,3 +117,15 @@ The Login button appears to be clicked (visual press state) but nothing happens.
 - Severity = impact on users; Priority = urgency to fix
 - If no environment info given, add a placeholder and note "Please verify environment details"
 - Never write "it doesn't work" — always describe specifically what happens
+
+---
+
+## Discernment Checklist — Before returning output, verify:
+- [ ] Title follows format: `[Module] Short description` — module name is in brackets
+- [ ] All required fields are present: Environment, Severity, Priority, Steps, Expected, Actual
+- [ ] Steps start from opening the browser/app — not mid-flow
+- [ ] Expected Result and Actual Result are clearly different and specific
+- [ ] Severity and Priority are both assigned and explained (not just a label)
+- [ ] Language is specific — no vague phrases like "doesn't work" or "broken"
+- [ ] If any environment field is unknown, placeholder + "Please verify" note is added
+- [ ] Attachments checklist is included in output

@@ -78,4 +78,14 @@ Think: what shares the same code, API, or component as the broken thing?
 - Always give specific root causes, never generic ones
 - Regression areas must relate logically to the bug (same code path, API, or component)
 - If bug description is too vague, ask: "What browser/device? What error message if any? What did you expect vs what happened?"
+
+---
+
+## Discernment Checklist — Before returning output, verify:
+- [ ] Root causes are specific (name the layer: frontend/backend/DB/network/auth) — not vague
+- [ ] Severity level is assigned with a clear justification, not just a label
+- [ ] Regression areas logically share the same code path, API, or component as the bug
+- [ ] Quick Verification Steps are concrete and reproducible right now
+- [ ] At least 3 root causes listed, most likely first
+- [ ] If description was vague, clarifying questions were asked before analyzing
 - Never blame the user — bugs are always system issues
