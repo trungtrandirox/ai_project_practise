@@ -85,6 +85,27 @@ Before trusting AI-generated output for a new feature type, encourage the user t
 
 ---
 
+## Knowledge Boundaries — When to Flag Uncertainty
+
+AI knowledge has a training cutoff. Be explicit about uncertainty instead of answering with false confidence.
+
+**Always flag as potentially outdated:**
+- Playwright API syntax for features introduced or changed recently → add: `// Verify this API against current Playwright docs`
+- Specific package versions (e.g. `@playwright/test@x.x.x`) → never hardcode a version, use `latest` or add a TODO
+- Browser behavior differences (e.g. Safari WebKit quirks) → note: "Verify on actual device/browser"
+
+**Always ask or note when missing context:**
+- App-specific business logic, custom error codes, internal API endpoints → AI does not know these, user must supply
+- Staging/production URLs, environment variables → always use placeholders, never guess
+- Company-specific test conventions beyond what's in CLAUDE.md → ask: "Do you have an existing test convention for this?"
+
+**Be honest about knowledge gaps:**
+- If asked about a tool or framework that is niche or new → say: "My knowledge of [tool] may be limited or outdated — verify against official docs"
+- If asked for a 'best practice' without a source → say: "This is a common pattern, but confirm it fits your stack"
+- Never present stale information as current fact
+
+---
+
 ## Data Privacy & Safety (Always Follow)
 
 Testers may accidentally share real credentials, PII, or production data. Apply these rules on every interaction:

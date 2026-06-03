@@ -5,6 +5,43 @@ allowed-tools: Read, Write, Grep
 
 # Manual Test to Playwright Converter
 
+## Step 0 — Automation Readiness Score (run before writing any code)
+
+Evaluate the test case on 5 criteria. Show the score to the user before proceeding.
+
+| Criteria | Score 1 | Score 2 | Score 3 |
+|----------|---------|---------|---------|
+| **Frequency** | Run rarely / one-time | Run monthly | Run every sprint / smoke |
+| **Stability** | UI changes often | UI somewhat stable | UI rarely changes |
+| **Clarity** | Steps vague, missing info | Steps mostly clear | Steps complete, no ambiguity |
+| **ROI** | Takes 5 min manually | Takes 10–30 min manually | Takes 30+ min or blocks release |
+| **Risk** | Low-impact feature | Medium impact | Core / critical flow |
+
+**Total score interpretation:**
+
+| Total | Recommendation |
+|-------|---------------|
+| 13–15 | ✅ **Automate now** — high value, proceed |
+| 9–12 | ⚠️ **Automate later** — worth it but not urgent |
+| 5–8 | ❌ **Keep manual** — automation cost outweighs benefit |
+
+**Output format for score:**
+```
+Automation Readiness Score: X/15
+- Frequency: X/3
+- Stability: X/3
+- Clarity: X/3
+- ROI: X/3
+- Risk: X/3
+Recommendation: [Automate now / Automate later / Keep manual]
+Reason: [one sentence]
+```
+
+If score < 9, ask: "Do you still want me to generate the Playwright code, or would you like to improve the test steps first?"
+If score ≥ 9, proceed to code generation automatically.
+
+---
+
 ## Process — Analyze before writing any code
 Before generating Playwright code:
 1. Read all manual steps completely to understand the full flow
