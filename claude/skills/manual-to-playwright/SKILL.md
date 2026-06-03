@@ -5,6 +5,12 @@ allowed-tools: Read, Write, Grep
 
 # Manual Test to Playwright Converter
 
+## Reference — What good output looks like
+Before generating, review the reference example at `references/good-output-example.ts`.
+This is the quality bar to match: locator choices, comment style, TC naming format, edge cases section, and locator suggestions table.
+
+---
+
 ## Step 0 — Automation Readiness Score (run before writing any code)
 
 Evaluate the test case on 5 criteria. Show the score to the user before proceeding.
