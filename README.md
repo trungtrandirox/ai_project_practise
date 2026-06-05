@@ -1,121 +1,161 @@
 # QA AI Assistant — Manual to Automation
 
-A QA AI Assistant built for manual testers transitioning to automation.
-Powered by Claude (Anthropic API) and Claude Code Skills.
+> **Dành cho ai?** Manual QA tester muốn dùng AI để làm việc nhanh hơn — không cần biết code.
+
+> **Dùng tool nào?** Tool này chạy với **Claude Code** (CLI) — không phải Claude Chat hay Claude Cowork.
+> - **Claude Chat** → hỏi, brainstorm, draft nhanh (chat.claude.ai)
+> - **Claude Code** ← tool này dùng cái này (`claude` CLI trong terminal)
+> - **Claude Cowork** → delegate task phức tạp qua nhiều file/app (desktop app)
+
+**Bạn có thể làm gì với tool này:**
+- Paste requirement/Jira ticket → nhận test cases ngay lập tức
+- Paste manual test steps → nhận Playwright automation script
+- Mô tả bug → nhận bug report chuyên nghiệp
+- Paste test cases → nhận đánh giá coverage còn thiếu gì
+
+**Powered by:** Claude AI (Anthropic) + Claude Code Skills
 
 ---
 
-## What This Project Does
+## Bắt đầu trong 5 phút
 
-This project helps QA Manual engineers by:
-- Generating comprehensive test cases from requirements
-- Converting manual test steps into Playwright automation code (Web, API, Mobile)
-- Analyzing bugs and writing professional bug reports
-- Reviewing test coverage gaps
+### Bước 1 — Cài đặt
 
----
-
-## Project Structure
-
-```
-.
-├── CLAUDE.md                         # Global rules applied to every conversation
-├── src/
-│   ├── main.ts                       # Entry point — runs the Playwright generator
-│   ├── agents/
-│   │   └── playwright.agent.ts       # Calls Claude API to generate Playwright tests
-│   └── prompts/
-│       └── playwright.prompt.ts      # Prompt template for test generation
-└── claude/
-    └── skills/
-        ├── test-case-generator/      # Generate test cases from requirements
-        ├── bug-analyzer/             # Analyze bug root causes and severity
-        ├── bug-report-writer/        # Write professional bug reports
-        ├── test-coverage-reviewer/   # Review gaps in test coverage
-        ├── manual-to-playwright/     # Convert manual web tests to Playwright
-        ├── api-test-generator/       # Convert API tests to Playwright
-        └── mobile-test-generator/   # Convert mobile tests to Playwright / Appium
-```
-
----
-
-## Claude Code Skills
-
-Each skill in `.claude/skills/` is automatically triggered by Claude based on your input.
-
-| Skill | Trigger keywords | Output |
-|-------|-----------------|--------|
-| `test-case-generator` | "generate test cases", "test this requirement" | Positive / Negative / Edge / Security / UX cases with Smoke & Regression labels |
-| `bug-analyzer` | "bug", "not working", "root cause" | Root causes + Severity + Regression areas |
-| `bug-report-writer` | "write bug report", "log this bug" | Professional bug report with Steps / Expected / Actual |
-| `test-coverage-reviewer` | "review test cases", "what am I missing" | Coverage score + missing test cases by category |
-| `manual-to-playwright` | "convert to playwright", "automate this test" | Playwright TypeScript test (Web UI) |
-| `api-test-generator` | "API test", "test this endpoint" | Playwright API test with request context |
-| `mobile-test-generator` | "mobile test", "iOS test", "swipe" | Playwright mobile emulation or Appium pseudocode |
-
----
-
-## Tech Stack
-
-| Tool | Purpose |
-|------|---------|
-| TypeScript | All code — never JavaScript |
-| `@anthropic-ai/sdk` | Call Claude API |
-| `dotenv` | Manage environment variables |
-| Claude Code Skills | AI-assisted QA workflows |
-
----
-
-## Prerequisites
-
-- Node.js 18+
-- An Anthropic API key → [console.anthropic.com](https://console.anthropic.com)
-
----
-
-## Setup
+Cần có sẵn:
+- [Node.js 18+](https://nodejs.org/) — download và cài như bình thường
+- API key của Claude → đăng ký tại [console.anthropic.com](https://console.anthropic.com)
 
 ```bash
-# 1. Clone the repo
+# Clone project về máy
 git clone https://github.com/trungtrandirox/ai_project_practise.git
 cd manual-test-to-playwright-generator
 
-# 2. Install dependencies
+# Cài dependencies
 npm install
 
-# 3. Create environment file
+# Tạo file .env chứa API key
 echo "ANTHROPIC_API_KEY=your_api_key_here" > .env
+```
 
-# 4. Run the generator
-npx ts-node src/main.ts
+### Bước 2 — Dùng với Claude Code (khuyên dùng)
+
+Cài Claude Code:
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+Mở project trong terminal:
+```bash
+cd manual-test-to-playwright-generator
+claude
+```
+
+### Bước 3 — Nói chuyện với AI
+
+Chỉ cần gõ yêu cầu bằng tiếng Anh hoặc tiếng Việt:
+
+| Bạn muốn làm gì | Ví dụ câu gõ |
+|-----------------|-------------|
+| Tạo test cases | `"Generate test cases for: User can login with email and password"` |
+| Convert sang Playwright | `"Convert to Playwright: 1. Go to /login 2. Enter email 3. Click Login 4. Verify dashboard"` |
+| Phân tích bug | `"Analyze this bug: Checkout button disappears on mobile"` |
+| Viết bug report | `"Write a bug report: Search returns no results with accented characters"` |
+| Kiểm tra coverage | `"Review these test cases, what am I missing?"` |
+
+---
+
+## Các tính năng (Skills)
+
+7 AI skills được tự động kích hoạt theo từ khóa — bạn không cần nhớ lệnh phức tạp:
+
+| Skill | Khi nào dùng | Output |
+|-------|-------------|--------|
+| `test-case-generator` | Có requirement/user story mới | Test cases đầy đủ (Happy Path, Edge Cases, Error, Security) với label Smoke/Regression |
+| `manual-to-playwright` | Có manual test steps cần automate | Playwright TypeScript script chạy được |
+| `api-test-generator` | Cần test API endpoint | Playwright API test với assertions |
+| `mobile-test-generator` | Test trên mobile (iOS/Android) | Playwright mobile emulation hoặc Appium pseudocode |
+| `bug-analyzer` | Tìm được bug, cần phân tích | Root causes + Severity + Regression areas |
+| `bug-report-writer` | Cần log bug chuyên nghiệp | Bug report đúng format với Steps/Expected/Actual |
+| `test-coverage-reviewer` | Muốn check còn thiếu test gì | Điểm coverage + danh sách test cases còn thiếu |
+
+---
+
+## Cấu trúc project
+
+```
+manual-test-to-playwright-generator/
+├── CLAUDE.md                    # Quy tắc AI áp dụng cho mọi cuộc trò chuyện
+├── AI-POLICY.md                 # Chính sách sử dụng AI có trách nhiệm
+├── src/
+│   ├── main.ts                  # Entry point
+│   ├── mcp-server.ts            # MCP Server — kết nối Claude với external tools
+│   ├── agents/
+│   │   └── playwright.agent.ts  # Gọi Claude API để generate Playwright tests
+│   ├── prompts/
+│   │   └── playwright.prompt.ts # Prompt template
+│   └── services/
+│       └── mcp-client.ts        # MCP Client
+├── claude/
+│   └── skills/                  # 7 AI skills (tự động kích hoạt theo từ khóa)
+└── .claude/
+    ├── commands/                # Custom commands (/testcases, /playwright, ...)
+    ├── agents/                  # Subagents (test-reviewer)
+    └── settings.json            # Hooks bảo vệ source code
 ```
 
 ---
 
-## QA Standards Used in This Project
+## QA Standards
 
-- Test case IDs: `TC-001`, `TC-002`...
-- Bug severity: 🔴 Critical / 🟠 High / 🟡 Medium / 🟢 Low
-- Test classification: 🚀 Smoke / 🔁 Regression
-- Locator priority: `getByRole` → `getByLabel` → `getByText` → `getByTestId`
-- Language: TypeScript only, never JavaScript
-- CSS class selectors (`.btn-primary`) are never used
+Tất cả output AI tạo ra đều theo chuẩn:
+
+| Chuẩn | Format |
+|-------|--------|
+| Test case ID | `TC-001`, `TC-002`... |
+| Bug severity | 🔴 Critical / 🟠 High / 🟡 Medium / 🟢 Low |
+| Test type | 🚀 Smoke / 🔁 Regression |
+| Playwright locator | `getByRole` → `getByLabel` → `getByText` → `getByTestId` |
+| Language | TypeScript only |
 
 ---
 
-## Example Usage (Claude Code)
+## Ví dụ thực tế
 
-**Generate test cases:**
-> "Generate test cases for this requirement: User can reset password via email OTP"
+**Input — Requirement:**
+```
+User can reset password via email OTP
+```
 
-**Convert manual steps to Playwright:**
-> "Convert these steps to Playwright: 1. Go to login page 2. Enter email 3. Enter password 4. Click login 5. Verify dashboard"
+**Output — Test cases được tạo tự động:**
+```
+TC-001 — Reset password with valid email | 🚀 Smoke
+TC-002 — Reset password with unregistered email | 🔁 Regression
+TC-003 — OTP expires after 5 minutes | 🔁 Regression
+TC-004 — OTP used twice | 🔁 Regression
+...
+```
 
-**Analyze a bug:**
-> "Analyze this bug: Checkout button disappears on mobile after adding item to cart"
+---
 
-**Write a bug report:**
-> "Write a bug report: Search returns no results when keyword contains accented characters"
+**Input — Manual steps:**
+```
+1. Go to /login
+2. Enter email: user@test.com
+3. Enter password: Test@1234
+4. Click Login button
+5. Verify user is on dashboard
+```
+
+**Output — Playwright script:**
+```typescript
+test('user can login with valid credentials', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Email').fill('user@test.com');
+  await page.getByLabel('Password').fill('Test@1234');
+  await page.getByRole('button', { name: 'Login' }).click();
+  await expect(page).toHaveURL('/dashboard');
+});
+```
 
 ---
 
@@ -217,6 +257,29 @@ I affirm that:
 - I take full responsibility for the accuracy and quality of all final outputs
 
 AI was used as a **collaborative tool** to enhance — not replace — the judgment of the QA engineer.
+
+---
+
+## Maintainer & Distribution
+
+**Owner:** Trung Tran (QA Engineer) — reviews all skill changes, runs evals before every publish, decides when to retire a skill.
+
+**To use this toolkit on your team:**
+1. Clone the repo
+2. Run `claude` in the project folder
+3. Type `/setup` — Claude will interview you and recommend the right skills for your role
+
+**Before shipping any skill update:**
+- Run `/eval [skill-name]` and confirm all 3 test prompts pass
+- If adding a new skill, give it a specific name (e.g. `api-auth-test-generator`, not `api-tests`)
+- Update this README if the skill list changes
+
+**Quarterly review checklist:**
+- [ ] Are all 7 skills still relevant to the team's workflow?
+- [ ] Run `/eval` on each skill — do outputs still meet the quality bar?
+- [ ] Any skill nobody uses in the last quarter? → retire it
+- [ ] Any new recurring task that deserves its own skill?
+- [ ] Is `references/good-output-example.ts` still representative of good output?
 
 ---
 
