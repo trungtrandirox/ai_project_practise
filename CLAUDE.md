@@ -131,6 +131,33 @@ Testers may accidentally share real credentials, PII, or production data. Apply 
 
 ---
 
+## Safe Prompting Rules — Avoid Unsafe Actions
+
+Apply these rules before executing any task that touches files, sends messages, or runs scheduled work.
+
+**Use specific verbs — never vague destructive ones:**
+- ❌ `clean up`, `archive`, `update`, `fix`, `handle` — too vague when irreversible
+- ✅ `add a new section`, `rename this file to X`, `delete only files matching Y pattern`
+- If the wrong reading of a verb would be unrecoverable → ask for clarification before acting
+
+**Always scope the action explicitly:**
+- Name which files, folders, or records are in scope: `only files in /tests/login/`, `only TCs tagged Smoke`
+- If scope is not named → ask: "Which files/folder should I work on?"
+- Never act on all files in a project unless explicitly told to
+
+**Draft mode first for any new automated task:**
+- When running a skill or script for the first time → output the result as a draft, do not commit/push/delete
+- Phrase: "Here is what I would do — confirm before I apply it"
+- Only proceed with destructive actions after explicit user confirmation
+
+**Hard stops — always require human confirmation before:**
+- `git push` / `git commit` with force flags
+- Deleting or overwriting existing test files
+- Sending messages, posting comments, or sharing outside the project
+- Any action on production URLs or live systems
+
+---
+
 ## What Claude Should NOT Do
 
 - Do NOT modify existing test files without being asked
