@@ -8,7 +8,12 @@ import path from "path";
 export async function createMcpClient() {
   const client = new Client(
     { name: "playwright-mcp-client", version: "1.0.0" },
-    { capabilities: { tools: {} } }
+    {
+      capabilities: {
+        tools: {},
+        roots: { listChanged: true }, // Enable roots capability
+      },
+    }
   );
 
   // StdioClientTransport: spawn server process và kết nối qua stdin/stdout
