@@ -302,11 +302,13 @@ const WEB_SEARCH_TOOL = {
  *  Ví dụ: refinePlaywrightTest("Add mobile viewport test cases")
  */
 export async function refinePlaywrightTest(
-  instruction: string
+  instruction: string,
+  useThinking  = false,
+  thinkingBudget = 8000,
 ): Promise<PlaywrightTestResult> {
   // Thêm yêu cầu refinement vào history — Claude sẽ nhớ code đã sinh ở turn trước
   conversationHistory.push({ role: "user", content: instruction });
-  return callClaude();
+  return callClaude(useThinking, thinkingBudget);
 }
 
 /** Reset conversation — bắt đầu session mới */
@@ -314,16 +316,92 @@ export function resetConversation(): void {
   conversationHistory.length = 0;
 }
 
-export async function generatePlaywrightTest(
-  manualTest: string
-): Promise<PlaywrightTestResult> {
-  // Reset history cho mỗi generation mới, rồi thêm message đầu tiên
-  resetConversation();
-  conversationHistory.push({ role: "user", content: playwrightPrompt(manualTest) });
-  return callClaude();
+// ── Lesson: Vision / Image Support ───────────────────────────────────────────
+// Images can be included as base64 alongside text blocks in a user message.
+// Limits: max 5 MB per image, 8000px per side (single image), tokens = (w×h)/750.
+// Good prompting is just as critical for vision as for text — structured prompts win.
+// Practical use: pass a UI screenshot so Claude can see the actual form labels,
+// button names, and ARIA roles rather than guessing from text descriptions alone.
+// Result: more accurate getByLabel(), getByRole(), getByText() locators.
+
+type SupportedMediaType = "image/png" | "image/jpeg" | "image/gif" | "image/webp";
+
+function detectMediaType(filePath: string): SupportedMediaType {
+  const ext = path.extname(filePath).toLowerCase();
+  const map: Record<string, SupportedMediaType> = {
+    ".png":  "image/png",
+    ".jpg":  "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".gif":  "image/gif",
+    ".webp": "image/webp",
+  };
+  return map[ext] ?? "image/png";
 }
 
-async function callClaude(): Promise<PlaywrightTestResult> {
+export async function generatePlaywrightTest(
+  manualTest: string,
+  useThinking    = false,
+  thinkingBudget = 8000,
+  // Lesson: optional screenshot of the UI under test — Claude analyzes it to infer
+  // correct locators (labels, roles, button text) instead of guessing from text alone.
+  screenshotPath?: string,
+): Promise<PlaywrightTestResult> {
+  resetConversation();
+
+  // Build user message: plain text, or image + text when screenshot is provided
+  // ── Lesson: Cache breakpoints span messages ────────────────────────────────
+  // The initial user message (full manual test spec + prompt template) is large
+  // and re-sent on every loop turn AND every refinePlaywrightTest() call.
+  // Mark it with cache_control so Claude reuses the preprocessed work.
+  // Must use longhand content array (not plain string) to add cache_control.
+  // Ordering that Anthropic processes: tools → system → messages — our breakpoint
+  // on the last tool + system + first user message gives 3 of the 4 allowed breakpoints.
+  let userContent: Anthropic.MessageParam["content"];
+
+  if (screenshotPath) {
+    const imageBytes = fs.readFileSync(screenshotPath);
+    const base64Data = imageBytes.toString("base64");
+    const mediaType  = detectMediaType(screenshotPath);
+
+    // Lesson: include image block BEFORE the text block — Claude reads top-to-bottom
+    // Use the same structured prompting principles: give Claude a clear analysis task
+    // cache_control on the LAST block = cache everything up to and including it
+    userContent = [
+      {
+        type: "image",
+        source: { type: "base64", media_type: mediaType, data: base64Data },
+      },
+      {
+        type: "text",
+        text:
+          "The image above is a screenshot of the UI page under test. " +
+          "Use it to identify the exact label text, button names, ARIA roles, " +
+          "and any other visible identifiers to build accurate Playwright locators.\n\n" +
+          playwrightPrompt(manualTest),
+        cache_control: { type: "ephemeral" },   // cache image + text together
+      } as Anthropic.TextBlockParam & { cache_control: { type: "ephemeral" } },
+    ];
+  } else {
+    // Longhand required to attach cache_control (shorthand string cannot carry it)
+    userContent = [
+      {
+        type: "text",
+        text: playwrightPrompt(manualTest),
+        cache_control: { type: "ephemeral" },   // cache the large prompt on every loop turn
+      } as Anthropic.TextBlockParam & { cache_control: { type: "ephemeral" } },
+    ];
+  }
+
+  conversationHistory.push({ role: "user", content: userContent });
+  return callClaude(useThinking, thinkingBudget);
+}
+
+async function callClaude(
+  // Lesson: Extended Thinking — enable only when default quality isn't sufficient.
+  // Must test without thinking first, then enable if evaluations fail.
+  useThinking  = false,
+  thinkingBudget = 8000,  // minimum allowed: 1024; max_tokens must exceed this
+): Promise<PlaywrightTestResult> {
   // Local message list for the tool-use loop.
   // conversationHistory is only updated at the start (by callers) and at the end (below).
   const messages: Anthropic.MessageParam[] = [...conversationHistory];
@@ -335,16 +413,55 @@ async function callClaude(): Promise<PlaywrightTestResult> {
 
   // Loop continues until Claude calls output_playwright_test (or throws on end_turn)
   while (true) {
+    // ── Lesson: Extended Thinking ─────────────────────────────────────────────
+    // When thinking is enabled:
+    //   - temperature MUST be 1 (API rejects other values)
+    //   - max_tokens must EXCEED thinking_budget (budget is for reasoning tokens only)
+    //   - Response includes a `thinking` block (with signature) + a `text` block
+    //   - Redacted thinking: type === "redacted_thinking" — keep in history unchanged
+    //     so Claude retains context from its encrypted reasoning in future turns
+    //   - thinking blocks are already preserved: we store full response.content in history
+    const thinkingConfig = useThinking
+      ? { type: "enabled" as const, budget_tokens: thinkingBudget }
+      : undefined;
+
+    // ── Lesson: Prompt Caching ────────────────────────────────────────────────
+    // Problem: the tool-use loop calls the API on every turn with the same system prompt
+    // and tools array. Without caching, Claude re-tokenises + re-embeds them each time.
+    // Solution: mark stable content with cache_control: { type: "ephemeral" }.
+    //   - system prompt  → identical every turn → always a cache hit on turn 2+
+    //   - tools array    → identical every turn → cache the last tool to cover the whole list
+    // Benefit: faster responses + lower cost (cached tokens billed at reduced rate).
+    // Limitation: cache lives 5 minutes — fine for our tool-use loop (seconds per turn).
+    //
+    // API shape:
+    //   system: [ { type: "text", text: "...", cache_control: { type: "ephemeral" } } ]
+    //   tools:  last tool gets  cache_control: { type: "ephemeral" }
+    const toolsWithCache = [...TOOLS, WEB_SEARCH_TOOL].map((tool, idx, arr) =>
+      idx === arr.length - 1
+        ? { ...tool, cache_control: { type: "ephemeral" } }  // cache the whole tools prefix
+        : tool
+    );
+
     const response = await anthropic.messages.create({
       model: "claude-3-5-sonnet-latest",
-      max_tokens: 4000,
-      // Course 1: Low temperature = consistent output, ideal for code generation
-      temperature: 0.1,
-      system: PLAYWRIGHT_SYSTEM_PROMPT,
+      // thinking needs headroom: budget for reasoning + buffer for the actual response
+      max_tokens: useThinking ? thinkingBudget + 2000 : 4000,
+      // Lesson: thinking requires temperature=1; otherwise keep 0.1 for deterministic code
+      temperature: useThinking ? 1 : 0.1,
+      ...(thinkingConfig && { thinking: thinkingConfig }),
+      // Cache the system prompt: same text every turn, no need to reprocess it
+      system: [
+        {
+          type: "text",
+          text: PLAYWRIGHT_SYSTEM_PROMPT,
+          cache_control: { type: "ephemeral" },
+        },
+      ],
       // Spread custom tools + built-in web search tool.
       // Web search is server-side: its server_tool_use blocks require no client response.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tools: [...TOOLS, WEB_SEARCH_TOOL] as any[],
+      tools: toolsWithCache as any[],
       // "auto" lets Claude choose: call get_project_config first, then output_playwright_test
       tool_choice: { type: "auto" },
       messages,
@@ -352,6 +469,23 @@ async function callClaude(): Promise<PlaywrightTestResult> {
 
     // Append Claude's reply to the loop messages
     messages.push({ role: "assistant", content: response.content });
+
+    // ── Lesson: Monitoring cache behavior ────────────────────────────────────
+    // response.usage reports token counts for this turn:
+    //   cache_creation_input_tokens → tokens written to cache (first request or cache miss)
+    //   cache_read_input_tokens     → tokens read from cache (cache hit — cheaper + faster)
+    //   input_tokens                → uncached tokens processed normally
+    // Log in dev so we can verify caching is actually working as expected.
+    if (process.env.NODE_ENV !== "production") {
+      const u = response.usage as Record<string, number>;
+      const cacheWrite = u["cache_creation_input_tokens"] ?? 0;
+      const cacheRead  = u["cache_read_input_tokens"]     ?? 0;
+      if (cacheWrite > 0 || cacheRead > 0) {
+        console.debug(
+          `[cache] turn write=${cacheWrite} read=${cacheRead} uncached=${u["input_tokens"] ?? 0}`
+        );
+      }
+    }
 
     // Capture any text blocks Claude sent alongside tool calls this turn
     // Lesson: multi-block messages can have BOTH text + tool_use — don't discard the text

@@ -1,9 +1,10 @@
 import "dotenv/config";
 import Anthropic from "@anthropic-ai/sdk";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import path from "path";
+import fs from "fs";
 import { generatePlaywrightTest, refinePlaywrightTest, resetConversation } from "./agents/playwright.agent";
 import { playwrightPrompt, PLAYWRIGHT_SYSTEM_PROMPT } from "./prompts/playwright.prompt";
 
@@ -214,6 +215,64 @@ server.registerResource(
           uri: "playwright://prompt-template",
           mimeType: "text/plain",
           text: `SYSTEM:\n${PLAYWRIGHT_SYSTEM_PROMPT}\n\nUSER:\n${playwrightPrompt("<manual_steps_here>")}`,
+        },
+      ],
+    };
+  }
+);
+
+// 6a. Resource (direct): list all available skills
+const SKILLS_DIR = path.resolve(__dirname, "../../claude/skills");
+
+server.registerResource(
+  "playwright-skills-list",
+  "playwright://skills",
+  {
+    description: "List all available skill IDs that can be fetched via playwright://skills/{skill_id}",
+    mimeType: "application/json",
+  },
+  async () => {
+    const skillIds = fs
+      .readdirSync(SKILLS_DIR, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+
+    return {
+      contents: [
+        {
+          uri: "playwright://skills",
+          mimeType: "application/json",
+          text: JSON.stringify(skillIds),
+        },
+      ],
+    };
+  }
+);
+
+// 6b. Resource (templated): fetch a specific skill's SKILL.md content
+server.registerResource(
+  "playwright-skill",
+  new ResourceTemplate("playwright://skills/{skill_id}", { list: undefined }),
+  {
+    description: "Fetch the full SKILL.md content for a given skill ID",
+    mimeType: "text/plain",
+  },
+  async (uri, variables) => {
+    const skill_id = variables["skill_id"] as string;
+    const skillPath = path.join(SKILLS_DIR, skill_id, "SKILL.md");
+
+    if (!fs.existsSync(skillPath)) {
+      throw new Error(`Skill '${skill_id}' not found. Use playwright://skills to list available skills.`);
+    }
+
+    const content = fs.readFileSync(skillPath, "utf-8");
+
+    return {
+      contents: [
+        {
+          uri: uri.href,
+          mimeType: "text/plain",
+          text: content,
         },
       ],
     };
